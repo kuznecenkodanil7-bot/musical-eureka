@@ -23,28 +23,34 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y wget unzip
 
-      - name: Download Godot
+      - name: Download Godot from GitHub Releases
         run: |
-          wget https://downloads.tuxfamily.org/godotengine/4.3/Godot_v4.3-stable_linux.x86_64.zip
+          wget --tries=5 --timeout=60 https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_linux.x86_64.zip
           unzip Godot_v4.3-stable_linux.x86_64.zip
           mv Godot_v4.3-stable_linux.x86_64 godot
           chmod +x godot
 
-      - name: Download Godot export templates
+      - name: Download Godot export templates from GitHub Releases
         run: |
           mkdir -p ~/.local/share/godot/export_templates/4.3.stable
-          wget https://downloads.tuxfamily.org/godotengine/4.3/Godot_v4.3-stable_export_templates.tpz
+          wget --tries=5 --timeout=60 https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_export_templates.tpz
           unzip Godot_v4.3-stable_export_templates.tpz
           mv templates/* ~/.local/share/godot/export_templates/4.3.stable/
+
+      - name: Import Godot project
+        run: |
+          ./godot --headless --path . --import || true
 
       - name: Create build folder
         run: mkdir -p build
 
       - name: Export Windows EXE
-        run: ./godot --headless --export-release "Windows Desktop" build/LastLetter.exe
+        run: |
+          ./godot --headless --path . --export-release "Windows Desktop" build/LastLetter.exe
 
       - name: Upload EXE artifact
         uses: actions/upload-artifact@v4
         with:
           name: LastLetter_Windows
           path: build/
+        
