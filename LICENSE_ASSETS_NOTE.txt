@@ -1,0 +1,2 @@
+The included PNG/OBJ files are placeholders generated for this prototype.
+They are safe to replace. For any external assets, check the license before use.
