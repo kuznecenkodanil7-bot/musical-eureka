@@ -1,0 +1,50 @@
+name: Build Godot Windows EXE
+
+on:
+  push:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-windows:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget unzip
+
+      - name: Download Godot
+        run: |
+          wget https://downloads.tuxfamily.org/godotengine/4.3/Godot_v4.3-stable_linux.x86_64.zip
+          unzip Godot_v4.3-stable_linux.x86_64.zip
+          mv Godot_v4.3-stable_linux.x86_64 godot
+          chmod +x godot
+
+      - name: Download Godot export templates
+        run: |
+          mkdir -p ~/.local/share/godot/export_templates/4.3.stable
+          wget https://downloads.tuxfamily.org/godotengine/4.3/Godot_v4.3-stable_export_templates.tpz
+          unzip Godot_v4.3-stable_export_templates.tpz
+          mv templates/* ~/.local/share/godot/export_templates/4.3.stable/
+
+      - name: Create build folder
+        run: mkdir -p build
+
+      - name: Export Windows EXE
+        run: ./godot --headless --export-release "Windows Desktop" build/LastLetter.exe
+
+      - name: Upload EXE artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: LastLetter_Windows
+          path: build/
